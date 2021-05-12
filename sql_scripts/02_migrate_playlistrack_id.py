@@ -6,6 +6,7 @@ conn = psycopg2.connect(
     user="postgres",
     password="apeel")
 
+# REF: https://pynative.com/python-postgresql-transaction-management-using-commit-and-rollback/
 
 # Execute in transaction
 with conn:
@@ -35,7 +36,3 @@ with conn:
         cur.execute('ALTER TABLE public."PlaylistTrack" ADD CONSTRAINT "PK_PlaylistTrack" PRIMARY KEY(id)')
         # cur.execute('ALTER TABLE public."PlaylistTrack" CHANGE COLUMN id id INTEGER AUTO_INCREMENT')
 
-# ----------------------
-
-# close the communication with the PostgreSQL
-# cur.close()

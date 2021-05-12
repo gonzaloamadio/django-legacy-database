@@ -28,26 +28,32 @@ that uses this db : https://github.com/ghusta/docker-postgres-world-db/blob/mast
 * You should have postgres in place
 * Create a venv with python 3.7 and install Django 3.1
 * Clone this project
-* Fill in your postgres user and password in this 2 files
+* Fill in your postgres user and password in these files
 ```
 ./dualdb/dualdb/settings.py
-./sql_scripts/02_migrate_playlistrack_id.py
+files in ./sql_scripts
 ```
-* Create databases and insert data
+* Create databases, insert data and fix Ids field definitions 
 ```
 ❯ createdb -U postgres django-legacy-project
 ❯ createdb -U postgres Chinook
-❯ psql -f sql_scripts/01_tables_and_data.sql -q Chinook postgres
-❯ python sql_scripts/02_migrate_playlistrack_id.py
+❯ psql -U postgres Chinook < sql_scripts/chinook_final_dump.tar
+
+# Restoring the db dump would be the same as executing this 3 scripts (so do not execute them is restore was successfull)
+# ❯ psql -f sql_scripts/01_tables_and_data.sql -q Chinook postgres
+# ❯ python sql_scripts/02_migrate_playlistrack_id.py
+# ❯ python sql_scripts/03_fix_fk_fields.py
 ```
 
 * Apply migrations
 ```
-./manage.py migrate
 ./manage.py createsuperuser
 ./manage.py makemigrations chinook
 ./manage.py migrate --database chinookdb --fake-initial chinook
+./manage.py migrate
 ```
+
+Fore more explanation on each step, continue reading.
 
 ## Environment
 
@@ -160,21 +166,23 @@ Chinook=# SELECT table_name, column_name, data_type FROM information_schema.colu
 We can do some things to remmediate this:
 
 1)
-used sql in the sqlite shell to create a new table PlaylistTrack2 table just like PlayListTrack but with an additional id field that serves as a primary key. I copied all the records from the the original table to the new one, dropped the old table, and renamed PlaylistTrack2 to PlaylistTrack.
+Create a new table PlaylistTrack2 table just like PlayListTrack but with an additional id field that serves as a primary key. I copied all the records from the the original table to the new one, dropped the old table, and renamed PlaylistTrack2 to PlaylistTrack.
 
-2) **DID NOT WORKED**
+2) **DID NOT WORKED** Because it has multiple column id defined!
+
 In recent versions of postgres, you can just add the column
 ```ALTER TABLE PlaylistTrack ADD COLUMN id SERIAL PRIMARY KEY;```
-Because it has multiple column id defined!
 ```
 Chinook=# ALTER TABLE public."PlaylistTrack" ADD COLUMN id SERIAL PRIMARY KEY;
 ERROR:  multiple primary keys for table "PlaylistTrack" are not allowed
 ```
+
+
 Obviously we've failed at our original mission - we've been forced to modify the structure of our database. This is the only change we've had to make, however, so we might be able to request this simple change to the database structure.
 
 
----------------------
-Lets try 1
+---------------------------------------------------------------------------------------------------------
+Lets try 2 but with a bit more work
 
 Connect to DB, and see table definition
 
@@ -304,7 +312,13 @@ Running migrations:
 
 This will also generate a django_migrations table in the legacy database — the only Django "system table" in this database.
 
-**Now, go to the adin again, although it’s minimalist, it’s already fully functional: Each element in each table can be listed, modified, deleted and new elements can be added.**
+We need to register this migration in the django database too. If not we are going to see that there is one unapplied migration.
+
+```
+❯ ./manage.py migrate
+```
+
+**Now, go to the admin again, although it’s minimalist, it’s already fully functional: Each element in each table can be listed, modified, deleted and new elements can be added.**
 
 See here how django_migrations was created in legacy db:
 
@@ -313,6 +327,8 @@ See here how django_migrations was created in legacy db:
 
 
 ## Troubleshooting
+
+### Creation error in legacy db
 
 **Befor applying fake initial migrations**:
 
@@ -324,6 +340,29 @@ But if we want to save it, we obtain this error:
 
 # <img src="images/01.png" width=200>
 ![error saving artist](images/02.png)
+
+FIX : https://stackoverflow.com/questions/14601312/null-value-in-django-orm-model-objects-primary-key
+
+It turns out that the legacy database was't set up correctly, and the primary keys were of the INTEGER type instead of SERIAL.
+
+So we had to change the ID field to be a serial auto field in tables. 
+
+sql_scripts/03_fix_fk_fields.py
+
+
+### Migrations unapplied 
+
+When running server, we see this:
+
+```
+❯ ./manage.py runserver 0.0.0.0:8000
+
+You have 1 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): chinook.
+Run 'python manage.py migrate' to apply them.
+
+Django version 3.1, using settings 'dualdb.settings'
+Starting development server at http://0.0.0.0:8000/
+```
 
 
 -----
