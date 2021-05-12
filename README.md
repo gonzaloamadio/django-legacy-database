@@ -23,6 +23,32 @@ For a quick and run, with sqlite : https://github.com/simeonf/django-dualdb-samp
 https://datascience.blog.wzb.eu/2017/03/21/using-django-with-an-existinglegacy-database/
 that uses this db : https://github.com/ghusta/docker-postgres-world-db/blob/master/scripts/world.sql
 
+## Quick up and run
+
+* You should have postgres in place
+* Create a venv with python 3.7 and install Django 3.1
+* Clone this project
+* Fill in your postgres user and password in this 2 files
+```
+./dualdb/dualdb/settings.py
+./sql_scripts/02_migrate_playlistrack_id.py
+```
+* Create databases and insert data
+```
+❯ createdb -U postgres django-legacy-project
+❯ createdb -U postgres Chinook
+❯ psql -f sql_scripts/01_tables_and_data.sql -q Chinook postgres
+❯ python sql_scripts/02_migrate_playlistrack_id.py
+```
+
+* Apply migrations
+```
+./manage.py migrate
+./manage.py createsuperuser
+./manage.py makemigrations chinook
+./manage.py migrate --database chinookdb --fake-initial chinook
+```
+
 ## Environment
 
 Out of scope. But you should have a venv with django installed.
@@ -298,4 +324,8 @@ But if we want to save it, we obtain this error:
 
 # <img src="images/01.png" width=200>
 ![error saving artist](images/02.png)
+
+
+-----
+Dumping / BK db: ```pg_dump -U postgres -W -F t Chinook > chinook.tar```
 
