@@ -4,20 +4,14 @@ Interface Django with a legacy (or existent) database without modifying it.
 This is an quick example of multi-db support in django and a
 demonstration of the inspectdb management command
 
-The sample database comes from https://github.com/lerocha/chinook-database .
-see the license for the included .sqlite database there.
+The sample database comes from https://github.com/lerocha/chinook-database.
 
-The chinook app is the result of running the inspectdb command to
-generate a models file and writng a router to handle my desired use
-case where:
+The chinook app is the result of running the inspectdb command to generate a models file and writng a router to handle my desired use case where:
 
  - models from the required contrib apps (django related stuff) live in their own .sqlite db
  - but we create an admin to edit the (otherwise unmodified) chinook database
 
-REF: https://www.protechtraining.com/blog/post/tutorial-using-djangos-multiple-database-support-477
-
-For a quick and run, with sqlite : https://github.com/simeonf/django-dualdb-sample
-
+Inspired by: https://www.protechtraining.com/blog/post/tutorial-using-djangos-multiple-database-support-477
 
 - Another example:
 https://datascience.blog.wzb.eu/2017/03/21/using-django-with-an-existinglegacy-database/
