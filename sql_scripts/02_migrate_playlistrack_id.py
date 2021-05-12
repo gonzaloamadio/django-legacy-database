@@ -4,7 +4,7 @@ conn = psycopg2.connect(
     host="localhost",
     database="Chinook",
     user="postgres",
-    password="apeel")
+    password="YOUR_PASSWORD")
 
 # REF: https://pynative.com/python-postgresql-transaction-management-using-commit-and-rollback/
 

@@ -7,7 +7,7 @@ conn = psycopg2.connect(
     host="localhost",
     database="Chinook",
     user="postgres",
-    password="apeel")
+    password="YOUR_PASSWORD")
 
 # We have a problem that the PK is an int, and not a auto increment.
 

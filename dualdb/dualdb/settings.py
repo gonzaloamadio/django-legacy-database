@@ -115,7 +115,7 @@ DATABASES = {
         'HOST': 'localhost',
         'PORT': '5432',
         'USER': 'postgres',
-        'PASSWORD': 'apeel',
+        'PASSWORD': 'YOUR_PASSWORD',
     },
     'chinookdb': {
         'ATOMIC_REQUESTS': True,
@@ -124,7 +124,7 @@ DATABASES = {
         'HOST': 'localhost',
         'PORT': '5432',
         'USER': 'postgres',
-        'PASSWORD': 'apeel',
+        'PASSWORD': 'YOUR_PASSWORD',
     }
 }
 
