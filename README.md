@@ -358,6 +358,9 @@ Django version 3.1, using settings 'dualdb.settings'
 Starting development server at http://0.0.0.0:8000/
 ```
 
+That is because we need to apply migrations for both databases
+./manage.py migrate    (this will go for default DB)
+./manage.pt migrate --database='<database_declared_in_settings_DATABASES_config>'
 
 -----
 Dumping / BK db: ```pg_dump -U postgres -W -F t Chinook > chinook.tar```
