@@ -142,6 +142,39 @@ cd chinook
 diff models.py models_unchanged.py
 ```
 
+### Integer to FK
+
+In this example proyect it is not the case. But if we have in the legacy DB a model that is an integer field, but it is supposed to be a FK. Do changes like this:
+
+Suppose we have a model (legacy db table)  ```Foo``` with a field ```remote_id``` that is a FK to a table ```Remote```
+
+Original generated field:
+```
+remote_id = models.IntegerField()
+```
+Change it to 
+```
+remote = models.ForeignKey('Remote', models.DO_NOTHING)
+```
+
+Pay attention that I delete the ```_id``` part... why?  Because Django add ```_id``` to the query.
+For example, if we do not take out that the query would be (Use django extensions shell_plus for this):
+```
+qset = Remote.objects.all()
+print(qset.query)
+SELECT Foo.id, Foo.remote_id_id FROM Foo
+```
+
+And you will have an error that the field remote_id_id does not exists.
+
+Another, probably more robust solution, is specifying db_column. So these three would work:
+
+```
+remote = models.ForeignKey('Remote', models.DO_NOTHING, db_column='remote_id')
+remote_id = models.ForeignKey('Remote', models.DO_NOTHING, db_column='remote_id')
+remote = models.ForeignKey('Remote', models.DO_NOTHING)
+```
+
 ### Multiple PK fix
 
 The Chinook database sensibly created a relationship table that has a multi-column primary key. The PlaylistTrack table has no single id column that serves as the primary key. However the Django ORM does not support multi-column keys and without a single primary key on the PlaylistTrack table the ORM has difficulty properly following the relationships between models.
